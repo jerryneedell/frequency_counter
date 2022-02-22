@@ -1,4 +1,5 @@
-//Reciprocal frequency counter
+#Reciprocal frequency counter - Raspberry Pi Forum - horuable
+#https://forums.raspberrypi.com/viewtopic.php?t=306250
 from micropython import const
 import rp2
 from rp2 import PIO, asm_pio
