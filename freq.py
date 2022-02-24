@@ -76,55 +76,58 @@ def init_sm(freq, input_pin, gate_pin, pulse_fin_pin):
     
     return sm0, sm1, sm2
 
+    
 if __name__ == "__main__":
     from machine import Pin
     import uarray as array
-    
+    button = machine.Pin(16,machine.Pin.IN,machine.Pin.PULL_UP)
+    button_time = 0
+    time.sleep(1)
+    print("Press Button to start/stop")
+    while button.value():
+        pass
+        
     update_flag = False
     data = array.array("I", [0, 0])
     def counter_handler(sm):
         #print("IRQ")
         global update_flag
         if not update_flag:
-            sm0.put(125_000_000)
+            sm0.put(125_000)
             sm0.exec("pull()")
             data[0] = sm1.get() # clock count
             data[1] = sm2.get() # pulse count
             update_flag = True
     
     sm0, sm1, sm2 = init_sm(125_000_000, Pin(15, Pin.IN, Pin.PULL_UP), Pin(14, Pin.OUT), Pin(13, Pin.OUT))
-    #sm0.irq(counter_handler)
-    run = False
-    button = machine.Pin(16,machine.Pin.IN,machine.Pin.PULL_UP)
-    button_time = 0
-    print("Press Button to start/stop")
+    sm0.irq(counter_handler)
+                
+    print("Started")
     i = 0
+    #f = open('freq_data.csv','w')
+    #f.write("sample, time, clock, pulses, frequency\r\n")
+    #f.close()
+
     while True:
-        if run:
-            if update_flag:
-                clock_count = 2*(max_count - data[0]+1)
-                pulse_count = max_count - data[1]
-                freq = pulse_count * (125000208.6 / clock_count)
-                print("{}, {}, {}, {}, {}".format(i, time.ticks_ms(),clock_count,pulse_count,freq))
-                #with open('freq_data.csv','a') as f:
-                #    f.write("{}, {}, {}, {}, {}\r\n".format(i,time.ticks_ms(),clock_count,pulse_count,freq))
-                i += 1
-                update_flag = False
+        #print(update_flag)
+        if update_flag:
+            clock_count = 2*(max_count - data[0]+1)
+            pulse_count = max_count - data[1]
+            freq = pulse_count * (125000208.6 / clock_count)
+            time_tag = time.ticks_ms()
+            sample = (i,time_tag,clock_count,pulse_count,freq)
+            print(sample)
+            #time.sleep(.0001)
+            #print("{}, {}, {}, {}, {}".format(i, time.ticks_ms(),clock_count,pulse_count,freq))
+            #print(', '.join([str(x) for x in sample]))
+            #with open('freq_data.csv','a') as f:
+            #    f.write("{}, {}, {}, {}, {}\r\n".format(i,time.ticks_ms(),clock_count,pulse_count,freq))
+            i += 1
+            update_flag = False
+            
             if time.ticks_ms() - button_time > 1000 and not button.value():
                 run = False
                 button_time = time.ticks_ms()
                 print("stopped")
                 machine.soft_reset()
-        else:
-            if time.ticks_ms() - button_time > 1000 and not button.value():
-                run = True
-                button_time = time.ticks_ms()
-                update_flag = False
-                data = array.array("I", [0, 0])
-                sm0.irq(counter_handler)
-                
-                print("Started")
-                i = 0
-                #f = open('freq_data.csv','w')
-                #f.write("sample, time, clock, pulses, frequency\r\n")
-                #f.close()
+        

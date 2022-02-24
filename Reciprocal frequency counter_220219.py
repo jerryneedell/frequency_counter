@@ -3,7 +3,8 @@
 from micropython import const
 import rp2
 from rp2 import PIO, asm_pio
-  
+import time
+
 @asm_pio(sideset_init=PIO.OUT_HIGH)
 def gate():
     """PIO to generate gate signal."""
@@ -103,5 +104,9 @@ if __name__ == "__main__":
             print("Clock count: {}".format(clock_count))
             print("Input count: {}".format(pulse_count))
             print("Frequency:   {}".format(freq))
+            time_tag=time.ticks_ms()
+            sample = (i,time_tag,clock_count,pulse_count,freq)
+            print(sample)
+
             i += 1
             update_flag = False
