@@ -131,7 +131,19 @@ if __name__ == "__main__":
                 run = False
                 button_time = time.ticks_ms()
                 print("stopped")
-                machine.soft_reset()
+                sm1.active(0)
+                sm2.active(0)
+                sm0.active(0)
+                time.sleep(1)
+                print("Press Button to start/stop")
+                while button.value():
+                    pass
+                sm1.active(1)
+                sm2.active(1)
+                sm0.active(1)
+                i = 0
+                button_time = time.ticks_ms()
+
         
 
     
