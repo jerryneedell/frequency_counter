@@ -5,5 +5,5 @@ frequency counter experimentation
 * freq.py -- uses orinal state machines -- hangs if sample missed
 * freq_gjn.py -- uses modified state machine per forum discussion -- not working  https://forums.raspberrypi.com/viewtopic.php?f=146&t=306250&p=1851876#p1841768
 
-the test programs use a button on GPIO 16 to trigger a sample -- GPIO 16 is pulled High and the button is is normally open and connected to Ground when pressed.
-Pressing the button again halts the sample and does a "soft reboot"
+the test programs freq.py and freq_gjn.py use a button on GPIO 16 to trigger a sample -- GPIO 16 is pulled High and the button is is normally open and connected to Ground when pressed.
+Pressing the button again halts the sample and waits for anothe button press to start again.
