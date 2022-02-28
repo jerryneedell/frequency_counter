@@ -97,8 +97,7 @@ if __name__ == "__main__":
             sm0.exec("pull()")
             data[0] = sm1.get() # clock count
             data[1] = sm2.get() # pulse count
-            update_flag = True
-    
+            update_flag = True    
     sm0, sm1, sm2 = init_sm(125_000_000, Pin(15, Pin.IN, Pin.PULL_UP), Pin(14, Pin.OUT), Pin(13, Pin.OUT))
     sm0.irq(counter_handler)
                 
@@ -116,15 +115,14 @@ if __name__ == "__main__":
             freq = pulse_count * (125000208.6 / clock_count)
             time_tag = time.ticks_ms()
             sample = (i,time_tag,clock_count,pulse_count,freq)
-            print(sample)
+            #print(sample)
             #time.sleep(.0001)
-            #print("{}, {}, {}, {}, {}".format(i, time.ticks_ms(),clock_count,pulse_count,freq))
+            print("{}, {}, {}, {}, {}".format(i, time.ticks_ms(),clock_count,pulse_count,freq))
             #print(', '.join([str(x) for x in sample]))
             #with open('freq_data.csv','a') as f:
             #    f.write("{}, {}, {}, {}, {}\r\n".format(i,time.ticks_ms(),clock_count,pulse_count,freq))
             i += 1
             update_flag = False
-            
             if time.ticks_ms() - button_time > 1000 and not button.value():
                 run = False
                 button_time = time.ticks_ms()
