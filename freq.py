@@ -6,6 +6,7 @@ import rp2
 from rp2 import PIO, asm_pio
 import machine
 import time
+import os
   
 @asm_pio(sideset_init=PIO.OUT_HIGH)
 def gate():
@@ -84,6 +85,9 @@ if __name__ == "__main__":
     button_time = 0
     time.sleep(1)
     print("Press Button to start/stop")
+    fs_info=os.statvfs("/")
+    fs_full= int(100*(fs_info[3]/fs_info[2]))
+    print("file system free percent: ",fs_full)
     while button.value():
         pass
         
@@ -111,8 +115,8 @@ if __name__ == "__main__":
     f = open(filename,'w')
     f.write("sample, time, clock, pulses, frequency\r\n")
     f.close()
-
-    while True:
+    keep_running=True
+    while keep_running:
         #print(update_flag)
         if update_flag:
             clock_count = 2*(max_count - data[0]+1)
@@ -127,6 +131,16 @@ if __name__ == "__main__":
             with open(filename,'a') as f:
                 f.write("{}, {}, {}, {}, {}\r\n".format(i,time_tag,clock_count,pulse_count,freq))
             i += 1
+            if i&0xff == 0: # print file system status every 256 samples
+                fs_info=os.statvfs("/")
+                fs_full= int(100*(fs_info[3]/fs_info[2]))
+                print("file system free percent: ",fs_full)
+                if fs_full < 10 :
+                    print("file system almost full - delete some files")
+                    keep_running=False
+                    sm1.active(0)
+                    sm2.active(0)
+                    sm0.active(0)
             update_flag = False
             sm1.active(1)
             sm2.active(1)
@@ -139,6 +153,9 @@ if __name__ == "__main__":
                 sm0.active(0)
                 time.sleep(1)
                 print("Press Button to start/stop")
+                fs_info=os.statvfs("/")
+                fs_full= int(100*(fs_info[3]/fs_info[2]))
+                print("file system free percent: ",fs_full)
                 while button.value():
                     pass
                 file_count += 1
