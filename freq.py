@@ -93,7 +93,10 @@ if __name__ == "__main__":
         #print("IRQ")
         global update_flag
         if not update_flag:
-            sm0.put(125_000)
+            sm1.active(0)
+            sm2.active(0)
+            #print("flagged")
+            sm0.put(125000)
             sm0.exec("pull()")
             data[0] = sm1.get() # clock count
             data[1] = sm2.get() # pulse count
@@ -103,9 +106,11 @@ if __name__ == "__main__":
                 
     print("Started")
     i = 0
-    #f = open('freq_data.csv','w')
-    #f.write("sample, time, clock, pulses, frequency\r\n")
-    #f.close()
+    file_count = 0
+    filename="freq_data_"+str(file_count)+".csv"
+    f = open(filename,'w')
+    f.write("sample, time, clock, pulses, frequency\r\n")
+    f.close()
 
     while True:
         #print(update_flag)
@@ -114,15 +119,17 @@ if __name__ == "__main__":
             pulse_count = max_count - data[1]
             freq = pulse_count * (125000208.6 / clock_count)
             time_tag = time.ticks_ms()
-            sample = (i,time_tag,clock_count,pulse_count,freq)
+            #sample = (i,time_tag,clock_count,pulse_count,freq)
             #print(sample)
             #time.sleep(.0001)
-            print("{}, {}, {}, {}, {}".format(i, time.ticks_ms(),clock_count,pulse_count,freq))
+            print("{}, {}, {}, {}, {}".format(i, time_tag,clock_count,pulse_count,freq))
             #print(', '.join([str(x) for x in sample]))
-            #with open('freq_data.csv','a') as f:
-            #    f.write("{}, {}, {}, {}, {}\r\n".format(i,time.ticks_ms(),clock_count,pulse_count,freq))
+            with open(filename,'a') as f:
+                f.write("{}, {}, {}, {}, {}\r\n".format(i,time_tag,clock_count,pulse_count,freq))
             i += 1
             update_flag = False
+            sm1.active(1)
+            sm2.active(1)
             if time.ticks_ms() - button_time > 1000 and not button.value():
                 run = False
                 button_time = time.ticks_ms()
@@ -134,6 +141,11 @@ if __name__ == "__main__":
                 print("Press Button to start/stop")
                 while button.value():
                     pass
+                file_count += 1
+                filename="freq_data_"+str(file_count)+".csv"
+                f = open(filename,'w')
+                f.write("sample, time, clock, pulses, frequency\r\n")
+                f.close()
                 sm1.active(1)
                 sm2.active(1)
                 sm0.active(1)
