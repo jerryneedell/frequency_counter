@@ -110,8 +110,8 @@ if __name__ == "__main__":
                 
     print("Started")
     i = 0
-    file_count = 0
-    filename="freq_data_"+str(file_count)+".csv"
+    now='_'.join([str(x) for x in time.localtime()[0:6]])
+    filename="freq_data_"+now+".csv"
     f = open(filename,'w')
     f.write("sample, time, clock, pulses, frequency\r\n")
     f.close()
@@ -158,8 +158,8 @@ if __name__ == "__main__":
                 print("file system free percent: ",fs_full)
                 while button.value():
                     pass
-                file_count += 1
-                filename="freq_data_"+str(file_count)+".csv"
+                now='_'.join([str(x) for x in time.localtime()[0:6]])
+                filename="freq_data_"+now+".csv"
                 f = open(filename,'w')
                 f.write("sample, time, clock, pulses, frequency\r\n")
                 f.close()
