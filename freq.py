@@ -6,7 +6,6 @@ import rp2
 from rp2 import PIO, asm_pio
 import machine
 import time
-import os
   
 @asm_pio(sideset_init=PIO.OUT_HIGH)
 def gate():
@@ -85,9 +84,6 @@ if __name__ == "__main__":
     button_time = 0
     time.sleep(1)
     print("Press Button to start/stop")
-    fs_info=os.statvfs("/")
-    fs_full= int(100*(fs_info[3]/fs_info[2]))
-    print("file system free percent: ",fs_full)
     while button.value():
         pass
         
@@ -97,8 +93,8 @@ if __name__ == "__main__":
         #print("IRQ")
         global update_flag
         if not update_flag:
-            sm1.active(0)
-            sm2.active(0)
+            #sm1.active(0)
+            #sm2.active(0)
             #print("flagged")
             sm0.put(125000)
             sm0.exec("pull()")
@@ -110,13 +106,7 @@ if __name__ == "__main__":
                 
     print("Started")
     i = 0
-    now='_'.join([str(x) for x in time.localtime()[0:6]])
-    filename="freq_data_"+now+".csv"
-    f = open(filename,'w')
-    f.write("sample, time, clock, pulses, frequency\r\n")
-    f.close()
-    keep_running=True
-    while keep_running:
+    while True:
         #print(update_flag)
         if update_flag:
             clock_count = 2*(max_count - data[0]+1)
@@ -128,46 +118,25 @@ if __name__ == "__main__":
             #time.sleep(.0001)
             print("{}, {}, {}, {}, {}".format(i, time_tag,clock_count,pulse_count,freq))
             #print(', '.join([str(x) for x in sample]))
-            with open(filename,'a') as f:
-                f.write("{}, {}, {}, {}, {}\r\n".format(i,time_tag,clock_count,pulse_count,freq))
             i += 1
-            if i&0xff == 0: # print file system status every 256 samples
-                fs_info=os.statvfs("/")
-                fs_full= int(100*(fs_info[3]/fs_info[2]))
-                print("file system free percent: ",fs_full)
-                if fs_full < 10 :
-                    print("file system almost full - delete some files")
-                    keep_running=False
-                    sm1.active(0)
-                    sm2.active(0)
-                    sm0.active(0)
             update_flag = False
-            sm1.active(1)
-            sm2.active(1)
+            #sm1.active(1)
+            #sm2.active(1)
             if time.ticks_ms() - button_time > 1000 and not button.value():
                 run = False
                 button_time = time.ticks_ms()
-                print("stopped")
+                #print("stopped")
                 sm1.active(0)
                 sm2.active(0)
                 sm0.active(0)
                 time.sleep(1)
-                print("Press Button to start/stop")
-                fs_info=os.statvfs("/")
-                fs_full= int(100*(fs_info[3]/fs_info[2]))
-                print("file system free percent: ",fs_full)
+                #print("Press Button to start/stop")
                 while button.value():
                     pass
-                now='_'.join([str(x) for x in time.localtime()[0:6]])
-                filename="freq_data_"+now+".csv"
-                f = open(filename,'w')
-                f.write("sample, time, clock, pulses, frequency\r\n")
-                f.close()
                 sm1.active(1)
                 sm2.active(1)
                 sm0.active(1)
+                print("Started")
                 i = 0
                 button_time = time.ticks_ms()
                 
-
-        
