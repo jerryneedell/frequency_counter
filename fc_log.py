@@ -15,11 +15,10 @@ port = sys.argv[1]
 ser = serial.Serial(port, 115200, timeout=1)
 file_count = 0
 file_open = False
+idle_count = 0
 try:
     while True:
-        #data = ser.read(ser.inWaiting())
         data = ser.read_until(expected=b'\n')
-        #print(data)
         if data == b'Started\r\n' :
             now = time.localtime()
             path = str(Path.home())+"/Desktop/"
@@ -37,10 +36,19 @@ try:
             try:
                 with open(filename,"a") as logfile:
                     logfile.write(line)
+                    idle_count =  0
             except UnicodeDecodeError as e:
                 print("decode error",e)
         else:
-            print(".",end='',flush=True)
+            idle_count += 1
+            if data:
+                print(".",end='',flush=True)
+                if idle_count&0x3f == 0:
+                    print("\nStop and Restart the Sensor")
+            else:
+                if idle_count&3 == 0:
+                    print("Start the Sensor")
+
 
 except KeyboardInterrupt:
     pass
