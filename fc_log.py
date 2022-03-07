@@ -12,7 +12,7 @@ if len(sys.argv) != 2:
 
 port = sys.argv[1]
 
-ser = serial.Serial(port, 115200)
+ser = serial.Serial(port, 115200, timeout=1)
 file_count = 0
 file_open = False
 try:
@@ -31,17 +31,11 @@ try:
             data = None
             file_count += 1
         if file_open and data:
-            #if data[len(data)-1] != 0 :
-            #    print("null terminator missing\rn")
-            #print([hex(x) for x in data])
-            print(data)
             line = data[0:-2].decode("UTF-8")
-            print(line)
-            line = line + '\n'
-            print(line)
+            line = line+"\n"
+            print(line[0:-1])
             try:
                 with open(filename,"a") as logfile:
-                    #logfile.write(data.decode("UTF-8"))
                     logfile.write(line)
             except UnicodeDecodeError as e:
                 print("decode error",e)
@@ -51,4 +45,4 @@ try:
 except KeyboardInterrupt:
     pass
 except Exception as e:
-    print("Som errror occured ",e)
+    print("Some errror occured ",e)
